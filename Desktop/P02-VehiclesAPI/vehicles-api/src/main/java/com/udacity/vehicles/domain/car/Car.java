@@ -106,4 +106,8 @@ public class Car {
     public void setPrice(String price) {
         this.price = price;
     }
+
+    public void setConditon(Condition condition) {
+        this.condition = condition;
+    }
 }

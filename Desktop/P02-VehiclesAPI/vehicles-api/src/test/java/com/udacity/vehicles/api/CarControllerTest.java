@@ -20,7 +20,11 @@ import com.udacity.vehicles.domain.car.Details;
 import com.udacity.vehicles.domain.manufacturer.Manufacturer;
 import com.udacity.vehicles.service.CarService;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +37,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
 
 /**
  * Implements testing of the CarController class.
@@ -91,11 +96,16 @@ public class CarControllerTest {
      */
     @Test
     public void listCars() throws Exception {
-        /**
-         * TODO: Add a test to check that the `get` method works by calling
-         *   the whole list of vehicles. This should utilize the car from `getCar()`
-         *   below (the vehicle will be the first in the list).
-         */
+        Car car = getCar();
+        List<Car> carList = new ArrayList<>(Arrays.asList(car));
+        mvc.perform(
+                get(new URI("/cars"))
+                        .accept(MediaType.APPLICATION_JSON_UTF8)) //response
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$._embedded.carList", hasSize(1)))
+                .andExpect(jsonPath("$._embedded.carList[0].condition",is("USED")))
+                .andExpect(jsonPath("$._embedded.carList[0].details.model", is("Impala")))
+                .andExpect(status().isOk());
 
     }
 
@@ -105,10 +115,17 @@ public class CarControllerTest {
      */
     @Test
     public void findCar() throws Exception {
-        /**
-         * TODO: Add a test to check that the `get` method works by calling
-         *   a vehicle by ID. This should utilize the car from `getCar()` below.
-         */
+        Car car = getCar();
+        List<Car> carList = new ArrayList<>(Arrays.asList(car));
+
+        mvc.perform(
+                get("/cars?id=8L", String.valueOf(5L))
+                        .content(json.write(car).getJson())
+                        .accept(MediaType.APPLICATION_JSON_UTF8)) //response
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect((jsonPath("$._embedded.carList[0].id").value(1L)))
+                .andExpect(jsonPath("$._embedded.carList", hasSize(1)))
+                .andExpect(status().isOk());
     }
 
     /**
